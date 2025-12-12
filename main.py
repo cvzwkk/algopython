@@ -597,10 +597,8 @@ async def depth_stream():
                 safe_call(predict_junx, price_history),
                 safe_call(predict_t3, price_history),
                 safe_call(predict_ichimoku, price_history),
-                # TF models are expensive; call defensively
-                safe_call(predict_tf_lstm, price_history)
-                # add other TF models as needed (cautiously)
             ]
+
 
             preds2 = []  # (kept empty as in your original)
 
