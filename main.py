@@ -18,7 +18,6 @@ from datetime import datetime
 from pykalman import KalmanFilter
 from binance.client import Client
 import nest_asyncio
-from river import linear_model, preprocessing
 import scipy.signal
 import tensorflow as tf
 from tensorflow.keras import layers, models
