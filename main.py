@@ -783,16 +783,31 @@ async def depth_stream():
 # =========================
 # RUN / resilient launcher
 # =========================
-async def run_forever():
+import asyncio
+
+# your existing async loops:
+# async def depth_stream(): ...
+# async def trade_stream(): ...
+# async def aggTrades_stream(): ...
+# etc.
+
+async def wrapper(loop_func):
+    """Keeps a stream alive forever, auto-restarting when it fails."""
     while True:
         try:
-            await depth_stream()
+            await loop_func()
         except Exception as e:
-            print("depth_stream crashed — reconnecting in 3s. Error:", repr(e))
+            print(f"{loop_func.__name__} crashed → restarting in 3s | Error:", repr(e))
             await asyncio.sleep(3)
 
-def start():
-    asyncio.run(run_forever())
+async def main():
+    await asyncio.gather(
+        wrapper(depth_stream),
+        # wrapper(trade_stream),
+        # wrapper(aggTrades_stream),
+        # wrapper(prediction_loop),
+        # wrapper(other_loop),
+    )
 
 if __name__ == "__main__":
-    start()
+    asyncio.run(main())
