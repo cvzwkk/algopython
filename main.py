@@ -18,7 +18,6 @@ from pykalman import KalmanFilter
 import nest_asyncio
 import scipy.signal
 import tensorflow as tf
-from tensorflow.keras import layers, models
 import math
 from scipy.signal import savgol_filter
 
@@ -296,28 +295,6 @@ def predict_ichimoku(prices, short=9, long=26):
     elif prices[-1]<cloud_bot: return prices[-1]*0.999
     else: return prices[-1]
 
-# Additional exotic model functions (predict_ar, predict_fft, etc.) omitted here for brevity,
-# but you can paste the same functions from your original file if you want them back.
-
-# =========================
-# TENSORFLOW MODELS (kept; expensive to run)
-# =========================
-def predict_tf_lstm(prices, window=20):
-    if len(prices) < window:
-        return prices[-1]
-    seq = np.array(prices[-window:], dtype=np.float32).reshape(1, window, 1)
-    model = models.Sequential([layers.LSTM(16, return_sequences=False), layers.Dense(1)])
-    model.compile(optimizer="adam", loss="mse")
-    X = np.array([prices[i-window:i] for i in range(window, len(prices))]).reshape(-1, window, 1)
-    y = np.array(prices[window:])
-    if len(X) < 2:
-        return prices[-1]
-    model.fit(X, y, batch_size=8, epochs=1, verbose=0)
-    pred = model.predict(seq, verbose=0)[0][0]
-    return float(pred)
-
-# (Other TF models omitted for brevity; include them if needed)
-
 # =========================
 # HFT INDICATORS & STREAM FEATURES (kept)
 # =========================
@@ -419,16 +396,6 @@ def price_skew(depth=5):
     bid_vol=sum([bids[top_bids[i]] for i in range(available_levels)])
     ask_vol=sum([asks[top_asks[i]] for i in range(available_levels)])
     return (bid_vol-ask_vol)/(bid_vol+ask_vol+1e-9)
-
-# =========================
-# River replacement stub (to avoid requiring river package)
-# =========================
-def update_river_models(midprice, features_dict):
-    """
-    Stub replacement for river-based online models.
-    Returns (pred, label). We simply return midprice and NEUTRAL label.
-    """
-    return midprice, "NEUTRAL ➖"
 
 # =========================
 # HMA + T3 crossing & Fibonacci helpers
