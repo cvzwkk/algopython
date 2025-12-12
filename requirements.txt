@@ -2,5 +2,4 @@ websockets
 numpy
 pykalman
 nest_asyncio
-river
 scipy
